@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מעקב יולי 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#081014; --card:#111b22; --card2:#16252e; --line:#263640;
+  --text:#f4f7f8; --muted:#9cabb2; --green:#8BFF3D; --red:#ff5757; --orange:#ff9f2e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Heebo,Arial,sans-serif; color:var(--text); background:
+  radial-gradient(circle at top left, rgba(139,255,61,.16), transparent 34%),
+  linear-gradient(135deg,#05090c,#0b151b);
+  min-height:100vh; padding:16px 14px 30px;
+}
+.app{max-width:680px;margin:auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:25px;margin:0;font-weight:900}
+h1 span{color:var(--green)}
+.month{font-weight:800;color:#dfe8eb}
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:0 16px 35px rgba(0,0,0,.25);
+}
+.quote{margin-bottom:14px;position:relative;overflow:hidden}
+.quote:before{content:"";position:absolute;left:-40px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(139,255,61,.13)}
+.quote b{color:var(--green)}
+.quote .small{color:var(--muted);font-size:14px;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{padding:14px;text-align:center}
+.stat .label{color:var(--muted);font-size:13px}
+.stat .num{font-size:24px;font-weight:900;margin-top:5px}
+.green{color:var(--green)} .red{color:var(--red)}
+.form{margin-bottom:14px}
+.form h2,.calendar h2{margin:0 0 12px;font-size:20px}
+.inputs{display:grid;gap:10px}
+input,textarea{
+  width:100%;border:1px solid var(--line);border-radius:15px;background:#071016;color:#fff;
+  padding:13px;font:inherit;outline:none;
+}
+input:focus,textarea:focus{border-color:var(--green)}
+.gymBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{
+  border:0;border-radius:15px;padding:13px;font:inherit;font-weight:900;cursor:pointer;
+}
+#yes,#no{background:#1c2a32;color:#d9e4e7}
+#yes.active{background:var(--green);color:#071016}
+#no.active{background:var(--red);color:white}
+.save{background:linear-gradient(135deg,#5be85f,var(--green));color:#061006}
+.clear{background:#1a252c;color:#dbe5e8;border:1px solid var(--line)}
+.calendar{padding:0;overflow:hidden}
+.calTop{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.week,.days{display:grid;grid-template-columns:repeat(7,1fr)}
+.week div{text-align:center;color:var(--muted);font-weight:800;padding:10px 0;border-bottom:1px solid var(--line)}
+.day{
+  min-height:66px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:7px;position:relative;cursor:pointer;background:rgba(255,255,255,.01)
+}
+.day.active{outline:2px solid var(--green);outline-offset:-2px;background:rgba(139,255,61,.06)}
+.dn{font-weight:800}
+.dw{font-size:13px;margin-top:3px;color:#e8f1f3}
+.mark{position:absolute;bottom:6px;left:7px;font-weight:900;font-size:16px}
+.mark.y{color:var(--green)} .mark.n{color:var(--red)}
+.today{position:absolute;top:8px;left:8px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+.footerNote{color:var(--muted);font-size:13px;text-align:center;margin-top:12px}
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr 1fr}
+  .stat{padding:12px 8px}
+  .stat .num{font-size:21px}
+  .day{min-height:60px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>מעקב <span>משקל & אימון</span></h1>
+    <div class="month">יולי 2026</div>
+  </div>
+
+  <div class="card quote">
+    <div id="quoteText"><b>משמעת היום</b> = כוח מחר.</div>
+    <div class="small">משפט מוטיבציה יומי מתחלף</div>
+  </div>
+
+  <div class="stats">
+    <div class="card stat">
+      <div class="label">משקל נוכחי</div>
+      <div class="num" id="current">—</div>
+    </div>
+    <div class="card stat">
+      <div class="label">מיום קודם</div>
+      <div class="num" id="daily">—</div>
+    </div>
+    <div class="card stat">
+      <div class="label">מתחילת החודש</div>
+      <div class="num" id="total">—</div>
+    </div>
+  </div>
+
+  <div class="card form">
+    <h2 id="dayTitle">היום ביומן</h2>
+    <div class="inputs">
+      <input id="weight" type="number" step="0.1" placeholder="משקל היום בק״ג">
+      <div class="gymBtns">
+        <button id="yes" onclick="setGym(true)">✓ הלכתי למכון</button>
+        <button id="no" onclick="setGym(false)">✕ לא הלכתי</button>
+      </div>
+      <textarea id="note" rows="2" placeholder="הערה קצרה, אופציונלי"></textarea>
+      <button class="save" onclick="save()">שמירה</button>
+      <button class="clear" onclick="clearDay()">ניקוי היום</button>
+    </div>
+  </div>
+
+  <div class="card calendar">
+    <div class="calTop"><h2>לוח חודשי</h2><span id="gymCount">0 אימונים</span></div>
+    <div class="week"><div>א</div><div>ב</div><div>ג</div><div>ד</div><div>ה</div><div>ו</div><div>ש</div></div>
+    <div class="days" id="days"></div>
+  </div>
+
+  <div class="footerNote">הנתונים נשמרים אוטומטית בדפדפן של הטלפון שלך.</div>
+</div>
+
+<script>
+const KEY="simple_july_2026_tracker";
+let data=JSON.parse(localStorage.getItem(KEY)||"{}");
+let selected= new Date().getFullYear()===2026 && new Date().getMonth()===6 ? new Date().getDate() : 1;
+let gym=null;
+
+const quotes=[
+"משמעת היום = כוח מחר.",
+"לא צריך מושלם, צריך עקבי.",
+"כל ✓ קטן מקרב אותך.",
+"התקדמות שקטה עדיין נחשבת.",
+"היום את מופיעה בשביל עצמך.",
+"אימון קצר עדיף על ויתור.",
+"את לא מחכה למוטיבציה, את בונה אותה.",
+"עוד יום קטן, עוד ניצחון קטן."
+];
+
+function store(){localStorage.setItem(KEY,JSON.stringify(data))}
+function fmt(n){return (n>0?"+":"")+Number(n).toFixed(1)}
+function isToday(d){let t=new Date();return t.getFullYear()===2026&&t.getMonth()===6&&t.getDate()===d}
+
+function build(){
+  document.getElementById("quoteText").innerHTML="<b>"+quotes[new Date().getDate()%quotes.length]+"</b>";
+  const days=document.getElementById("days"); days.innerHTML="";
+  for(let i=0;i<3;i++){let blank=document.createElement("div"); blank.className="day"; days.appendChild(blank)}
+  for(let d=1;d<=31;d++){
+    let x=data[d]||{};
+    let el=document.createElement("div");
+    el.className="day"+(d===selected?" active":"");
+    el.onclick=()=>select(d);
+    el.innerHTML=`<div class="dn">${d}</div>${x.weight?`<div class="dw">${Number(x.weight).toFixed(1)} ק״ג</div>`:""}${x.gym===true?`<div class="mark y">✓</div>`:x.gym===false?`<div class="mark n">×</div>`:""}${isToday(d)?`<span class="today"></span>`:""}`;
+    days.appendChild(el);
+  }
+  updateStats();
+}
+
+function select(d){
+  selected=d;
+  const x=data[d]||{};
+  gym=x.gym ?? null;
+  document.getElementById("dayTitle").textContent="יום "+d+" ביולי";
+  document.getElementById("weight").value=x.weight||"";
+  document.getElementById("note").value=x.note||"";
+  document.getElementById("yes").className=gym===true?"active":"";
+  document.getElementById("no").className=gym===false?"active":"";
+  build();
+}
+
+function setGym(v){
+  gym=v;
+  document.getElementById("yes").className=v===true?"active":"";
+  document.getElementById("no").className=v===false?"active":"";
+}
+
+function save(){
+  data[selected]={
+    weight:document.getElementById("weight").value,
+    gym:gym,
+    note:document.getElementById("note").value
+  };
+  store(); build(); select(selected);
+}
+
+function clearDay(){
+  delete data[selected]; store(); build(); select(selected);
+}
+
+function weights(){
+  return Object.keys(data).filter(k=>data[k].weight).map(k=>({d:+k,w:+data[k].weight})).sort((a,b)=>a.d-b.d);
+}
+
+function updateStats(){
+  let ws=weights(), latest=ws[ws.length-1], prev=ws[ws.length-2], first=ws[0];
+  document.getElementById("current").textContent=latest?latest.w.toFixed(1):"—";
+  let daily=latest&&prev?latest.w-prev.w:null;
+  let total=latest&&first&&latest.d!==first.d?latest.w-first.w:null;
+  let dailyEl=document.getElementById("daily"), totalEl=document.getElementById("total");
+  dailyEl.textContent=daily!==null?fmt(daily):"—";
+  totalEl.textContent=total!==null?fmt(total):"—";
+  dailyEl.className="num "+(daily<0?"green":daily>0?"red":"");
+  totalEl.className="num "+(total<0?"green":total>0?"red":"");
+  let gymCount=Object.keys(data).filter(k=>data[k].gym===true).length;
+  document.getElementById("gymCount").textContent=gymCount+" אימונים";
+}
+build(); select(selected);
+</script>
+</body>
+</html>
